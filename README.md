@@ -2,7 +2,9 @@
 Analysis of seasonal habitat-use patterns of Aldabra giant tortoises of Aldabra Atoll (_Aldabrachelys gigantea_), Seychelles using temporary emigration models.
 
 ## Files
+
 data/aldabra_tortoise_data_all.RData = data for running all veresions of models and predictions
+
 *** Data here is representative just to make code running, not the actual data used in the analyses. ***
 
 In all models lambda represents expected site-specific density and kept the same for all model versions:
