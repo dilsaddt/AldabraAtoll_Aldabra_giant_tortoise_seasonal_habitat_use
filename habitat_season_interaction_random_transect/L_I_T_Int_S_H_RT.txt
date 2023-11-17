@@ -1,0 +1,71 @@
+
+model {
+  #Model: Interaction Model
+  #
+  # -----------------------------------------------------------------------------------------
+  #
+  # Parameters:
+  # Each site has a super population size M, with expected site-specific density lambda, of which each individual is present and available to be detected at time t with probability theta and a detection probability of p (which is set to be between 0.9 and 1, since the giant tortoises should be seen when they are on site since the sites are small enough that the tortoises can't be overseen when they are there. 
+  # 
+  # M = superpopulation size
+  # λ = expected site-specific denisty
+  # N = # of individuals present at time of survey
+  # θ = availability = probability of each individual to be present and available to be detected at time t (habitat)
+  # C = # of individuals counted during survey
+  # p = detection probability  
+  # -----------------------------------------------------------------------------------------
+  #
+  # Others:
+  #
+  # nsite: number of sites = 344
+  # nseasons: number of seasons = 29
+  # nsurveys: number of sampling occasions/surveys per season = 6 
+  # 
+  # -----------------------------------------------------------------------------------------
+  #
+  # Covariates:
+  #
+  # Season: 2-level covariate: 1 = dry, 2 = wet
+  # habitat = 8-level covariate : SMX = 1, OMX = 2, PEM = 3, EXP = 4, CAC = 5, GRA = 6, CHP = 7, SND = 8
+  # Island: 4-level covariate: 1 = Grande Terre East, 2 = Grande Terre West, 3 = Malabar, 4 = Picard
+  #
+    #### PRIORS ####
+
+    # lambda ~ island
+    for (i in 1:4){
+      beta1.lambda[i] ~ dnorm(0, 1)
+    }
+    
+    # theta ~ habitat+season+habitat:season
+    for (h in 1:8){
+      for (s in 1:2){
+        beta1.theta[h,s] ~ dnorm(0, 1)
+      }}
+
+    for (t in 1:12){
+    randomtheta[t]~dnorm(0, tautheta)
+    }
+    sigmatheta~dunif(0,10)
+    tautheta<-pow(sigmatheta, -2)
+
+    # p ~1
+    p ~ dunif(0.9,1)
+
+    
+    
+    #### MODEL ####
+
+     # Likelihood
+ # Ecological model for true abundance
+ for (i in 1:nsites){
+  M[i] ~ dpois(lambda[i]) 
+   log(lambda[i])<-beta1.lambda[island[i]] # Expected site-specific density
+  for(t in 1:nseasons){
+  N[i,t] ~ dbin(theta[i,t], M[i])
+  logit(theta[i,t])<-beta1.theta[habitat[i], season[t]]+randomtheta[transect[i]] #availability based on habitat and season interaction
+   for (j in 1:nsurveys){
+   C[i,t,j] ~ dbin(p, N[i,t]) # detection probability between 0.9-1 
+ }
+ }
+}
+    }
